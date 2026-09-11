@@ -10,7 +10,7 @@ los cambios realizados en cada modificación del proyecto.
 ## 2. Ramas y Flujo de Trabajo
 
 - Utilizamos Trunk-Based Development, trabajando principalmente sobre
-la rama `main`.
+la rama `main` tal como fue indicado por el profesor.
 
 - Los cambios se prueban localmente antes de realizar el commit y
 posteriormente se integran directamente a `main`.
