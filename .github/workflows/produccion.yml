@@ -125,7 +125,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
 
-          envs: DB_URL,DB_USERNAME,DB_PASSWORD
+          envs: DB_URL,DB_USERNAME,DB_PASSWORD,EUREKA_URL
 
           script: |
 
