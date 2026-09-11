@@ -1,0 +1,81 @@
+name: Deploy Produccion
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  RUTA: /home/ubuntu/Deploy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # 1. Descargar el código
+      - name: Clonar repositorio
+        uses: actions/checkout@v4
+
+
+      # 2. Configurar Java 21
+      - name: Configurar Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+
+      # 3. Compilar proyecto
+      - name: Compilar proyecto
+        run: mvn clean install -DskipTests
+
+
+      # 4. Copiar ms-usuarios a AWS
+      - name: Copiar ms-usuarios
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "ms-usuarios/target/cl-triskeledu-usuarios-0.0.1-SNAPSHOT.jar"
+          target: "/home/ubuntu/Deploy"
+
+
+      # 5. Ejecutar ms-usuarios en AWS
+      - name: Ejecutar ms-usuarios
+        uses: appleboy/ssh-action@v1.2.2
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+
+          envs: DB_URL,DB_USERNAME,DB_PASSWORD
+
+          script: |
+            cd /home/ubuntu/Deploy
+
+            echo "Deteniendo versión anterior..."
+
+            pkill -f "cl-triskeledu-usuarios" || true
+
+            export DB_URL="$DB_URL"
+            export DB_USERNAME="$DB_USERNAME"
+            export DB_PASSWORD="$DB_PASSWORD"
+
+            echo "Iniciando ms-usuarios..."
+
+            nohup java -jar cl-triskeledu-usuarios-0.0.1-SNAPSHOT.jar \
+              --spring.profiles.active=prod \
+              > ms-usuarios.log 2>&1 &
+
+            echo "ms-usuarios iniciado"
