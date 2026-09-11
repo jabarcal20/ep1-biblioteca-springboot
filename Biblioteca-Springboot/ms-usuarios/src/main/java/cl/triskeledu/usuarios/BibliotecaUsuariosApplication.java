@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = "cl.triskeledu.usuarios.client")
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "cl.triskeledu.usuarios")
 public class BibliotecaUsuariosApplication {
 
 	public static void main(String[] args) {
