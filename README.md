@@ -1,18 +1,18 @@
 # Ep1-Biblioteca-Springboot
 ## 1. Convención de Commits
 
-Durante el desarrollo del proyecto no se utilizó una convención formal
+- Durante el desarrollo del proyecto no se utilizó una convención formal
 como Conventional Commits.
 
-Los mensajes de commit se utilizaron para describir de manera breve
+- Los mensajes de commit se utilizaron para describir de manera breve
 los cambios realizados en cada modificación del proyecto.
 
 ## 2. Ramas y Flujo de Trabajo
 
-Utilizamos Trunk-Based Development, trabajando principalmente sobre
+- Utilizamos Trunk-Based Development, trabajando principalmente sobre
 la rama `main`.
 
-Los cambios se prueban localmente antes de realizar el commit y
+- Los cambios se prueban localmente antes de realizar el commit y
 posteriormente se integran directamente a `main`.
 
 
