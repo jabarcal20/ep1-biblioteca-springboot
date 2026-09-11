@@ -316,4 +316,78 @@ jobs:
               exit 1
             fi
 
+        # 10. Copiar ms-recursos a AWS
+      - name: Copiar ms-recursos
+        uses: appleboy/scp-action@v0.1.7
+        with:
+            host: ${{ secrets.SSH_HOST }}
+            username: ${{ secrets.SSH_USER }}
+            key: ${{ secrets.SSH_KEY }}
+            port: ${{ secrets.SSH_PORT }}
+            source: "Biblioteca-Springboot/ms-recursos/target/cl-triskeledu-recursos-0.0.1-SNAPSHOT.jar"
+            target: "/home/ubuntu/Deploy"
+            strip_components: 3
+      
+      # 11. Preparar y ejecutar ms-recursos
+      - name: Preparar y ejecutar ms-recursos
+        uses: appleboy/ssh-action@v1.2.2
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          envs: DB_URL,DB_USERNAME,DB_PASSWORD
+          script: |
+            cd /home/ubuntu/Deploy
+
+            echo "Deteniendo ms-recursos anterior..."
+
+            if [ -f ms-recursos.pid ]; then
+            PID=$(cat ms-recursos.pid)
+
+            if kill -0 "$PID" 2>/dev/null; then
+              echo "Deteniendo proceso anterior con PID $PID..."
+              kill "$PID"
+              sleep 5
+            else
+              echo "El proceso anterior ya no está ejecutándose."
+            fi
+
+            rm -f ms-recursos.pid
+            else
+              echo "No existe un proceso anterior."
+            fi
+
+            export DB_URL="$DB_URL"
+            export DB_USERNAME="$DB_USERNAME"
+            export DB_PASSWORD="$DB_PASSWORD"
+            export EUREKA_URL="http://localhost:8761/eureka"
+
+            echo "Iniciando ms-recursos..."
+
+            nohup java -jar cl-triskeledu-recursos-0.0.1-SNAPSHOT.jar \
+            --spring.profiles.active=prod \
+            > ms-recursos.log 2>&1 &
+
+            echo $! > ms-recursos.pid
+
+            echo "Esperando que Spring Boot inicie..."
+            sleep 10
+
+            if kill -0 "$(cat ms-recursos.pid)" 2>/dev/null; then
+              echo "ms-recursos está ejecutándose correctamente."
+            else
+              echo "ERROR: ms-recursos no pudo iniciarse."
+              echo "Mostrando últimos logs:"
+              tail -n 50 ms-recursos.log
+              exit 1
+            fi
+
+
+
+
       
