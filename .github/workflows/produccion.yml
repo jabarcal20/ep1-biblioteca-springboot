@@ -30,7 +30,9 @@ jobs:
 
       # 3. Compilar proyecto
       - name: Compilar proyecto
-        run: mvn clean install -DskipTests
+        run: |
+          cd Biblioteca-Springboot
+          mvn clean install -DskipTests
 
 
       # 4. Copiar ms-usuarios a AWS
@@ -41,7 +43,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: "ms-usuarios/target/cl-triskeledu-usuarios-0.0.1-SNAPSHOT.jar"
+          source: "Biblioteca-Springboot/ms-usuarios/target/cl-triskeledu-usuarios-0.0.1-SNAPSHOT.jar"
           target: "/home/ubuntu/Deploy"
 
 
