@@ -180,3 +180,64 @@ jobs:
               exit 1
 
             fi
+
+      # 6. Copiar Eureka a AWS
+      - name: Copiar Eureka
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "Biblioteca-Springboot/eureka/target/cl-triskeledu-eureka-1.0-SNAPSHOT.jar"
+          target: "/home/ubuntu/Deploy"
+          strip_components: 3
+
+      # 7. Preparar y ejecutar Eureka
+      - name: Preparar y ejecutar Eureka
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /home/ubuntu/Deploy
+
+            echo "Deteniendo Eureka anterior..."
+
+            if [ -f eureka.pid ]; then
+              PID=$(cat eureka.pid)
+
+              if kill -0 "$PID" 2>/dev/null; then
+                echo "Deteniendo Eureka con PID $PID..."
+                kill "$PID"
+                sleep 5
+              else
+                echo "El proceso anterior ya no está ejecutándose."
+              fi
+
+              rm -f eureka.pid
+            else
+              echo "No existe un proceso anterior de Eureka."
+            fi
+
+            echo "Iniciando Eureka..."
+
+            nohup java -jar cl-triskeledu-eureka-1.0-SNAPSHOT.jar \
+              --spring.profiles.active=prod \
+              > eureka.log 2>&1 &
+
+            echo $! > eureka.pid
+
+            echo "Esperando que Eureka inicie..."
+            sleep 10
+
+            if kill -0 "$(cat eureka.pid)" 2>/dev/null; then
+              echo "Eureka está ejecutándose correctamente."
+            else
+              echo "ERROR: Eureka no pudo iniciarse."
+              echo "Mostrando últimos logs:"
+              tail -n 50 eureka.log
+              exit 1
+            fi
