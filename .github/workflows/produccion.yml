@@ -328,36 +328,37 @@ jobs:
             target: "/home/ubuntu/Deploy"
             strip_components: 3
       
-      # 11. Preparar y ejecutar ms-recursos
+            # 11. Preparar y ejecutar ms-recursos
       - name: Preparar y ejecutar ms-recursos
         uses: appleboy/ssh-action@v1.2.2
         env:
           DB_URL: ${{ secrets.DB_URL }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          EUREKA_URL: http://localhost:8761/eureka
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          envs: DB_URL,DB_USERNAME,DB_PASSWORD
+          envs: DB_URL,DB_USERNAME,DB_PASSWORD,EUREKA_URL
           script: |
             cd /home/ubuntu/Deploy
 
             echo "Deteniendo ms-recursos anterior..."
 
             if [ -f ms-recursos.pid ]; then
-            PID=$(cat ms-recursos.pid)
+              PID=$(cat ms-recursos.pid)
 
-            if kill -0 "$PID" 2>/dev/null; then
-              echo "Deteniendo proceso anterior con PID $PID..."
-              kill "$PID"
-              sleep 5
-            else
-              echo "El proceso anterior ya no está ejecutándose."
-            fi
+              if kill -0 "$PID" 2>/dev/null; then
+                echo "Deteniendo proceso anterior con PID $PID..."
+                kill "$PID"
+                sleep 5
+              else
+                echo "El proceso anterior ya no está ejecutándose."
+              fi
 
-            rm -f ms-recursos.pid
+              rm -f ms-recursos.pid
             else
               echo "No existe un proceso anterior."
             fi
@@ -365,13 +366,13 @@ jobs:
             export DB_URL="$DB_URL"
             export DB_USERNAME="$DB_USERNAME"
             export DB_PASSWORD="$DB_PASSWORD"
-            export EUREKA_URL="http://localhost:8761/eureka"
+            export EUREKA_URL="$EUREKA_URL"
 
             echo "Iniciando ms-recursos..."
 
             nohup java -jar cl-triskeledu-recursos-0.0.1-SNAPSHOT.jar \
-            --spring.profiles.active=prod \
-            > ms-recursos.log 2>&1 &
+              --spring.profiles.active=prod \
+              > ms-recursos.log 2>&1 &
 
             echo $! > ms-recursos.pid
 
