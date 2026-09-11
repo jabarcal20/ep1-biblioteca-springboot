@@ -15,7 +15,11 @@ la rama `main`.
 - Los cambios se prueban localmente antes de realizar el commit y
 posteriormente se integran directamente a `main`.
 
+## 3. Integración Continua y Revisión
 
-# 3. Integración Continua y Revisión
-- **GitHub Actions:** Cada vez que hacemos `git push origin main`, se activa automáticamente el pipeline de CI para verificar que el proyecto siga compilando.
-- **Revisión de cambios:** Antes de dar por terminado un ajuste, revisamos que los microservicios levanten en su orden (Eureka -> Usuarios -> Catálogo -> Recursos -> Gateway) y que no se rompan las dependencias en el `pom.xml`.
+- **GitHub Actions:** Cada vez que hacemos `git push`, se activa automáticamente el pipeline de CI para verificar que el proyecto siga compilando.
+- **Revisión de cambios:** Antes de dar por terminado un ajuste, revisamos que los microservicios levanten en su orden (Eureka -> Usuarios -> Catálogo -> Recursos -> Gateway).
+
+## 4. Declaración de asistencia con IA
+
+- Se utilizaron herramientas de IA como soporte tecnico para la resolucion de errores en configuraciones de Maven y la estructuracion de la documentacion del proyecto.

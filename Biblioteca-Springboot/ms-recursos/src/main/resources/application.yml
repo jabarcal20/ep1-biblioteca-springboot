@@ -143,7 +143,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
       # ↑ En prod NO tocamos el esquema automáticamente.
       #   Solo verifica que las tablas coincidan con las entidades Java.
       #   Las migraciones reales se hacen con Flyway o Liquibase.
