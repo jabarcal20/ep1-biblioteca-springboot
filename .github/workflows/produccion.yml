@@ -390,6 +390,74 @@ jobs:
             fi
 
 
+            
+      # 12. Copiar API Gateway
+      - name: Copiar API Gateway
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "Biblioteca-Springboot/api-gateway/target/cl-triskeledu-gateway-0.0.1-SNAPSHOT.jar"
+          target: "/home/ubuntu/Deploy"
+          strip_components: 3
+
+      # 13. Preparar y ejecutar API Gateway
+      - name: Preparar y ejecutar API Gateway
+        uses: appleboy/ssh-action@v1.2.2
+        env:
+          EUREKA_URL: http://localhost:8761/eureka
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          envs: EUREKA_URL
+          script: |
+            cd /home/ubuntu/Deploy
+
+            echo "Deteniendo API Gateway anterior..."
+
+            if [ -f api-gateway.pid ]; then
+              PID=$(cat api-gateway.pid)
+
+              if kill -0 "$PID" 2>/dev/null; then
+                echo "Deteniendo API Gateway con PID $PID..."
+                kill "$PID"
+                sleep 5
+              else
+                echo "El proceso anterior ya no está ejecutándose."
+              fi
+
+            rm -f api-gateway.pid
+            else
+              echo "No existe un proceso anterior de API Gateway."
+            fi
+
+            export EUREKA_URL="$EUREKA_URL"
+
+            echo "Iniciando API Gateway..."
+
+            nohup java -jar cl-triskeledu-gateway-0.0.1-SNAPSHOT.jar \
+            --spring.profiles.active=prod \
+            > api-gateway.log 2>&1 &
+
+            echo $! > api-gateway.pid
+
+            echo "Esperando que Spring Boot inicie..."
+            leep 15
+
+            if kill -0 "$(cat api-gateway.pid)" 2>/dev/null; then
+              echo "API Gateway está ejecutándose correctamente."
+            else
+              echo "ERROR: API Gateway no pudo iniciarse."
+              echo "Mostrando últimos logs:"
+              tail -n 50 api-gateway.log
+              exit 1
+            fi
+
+
 
 
       
