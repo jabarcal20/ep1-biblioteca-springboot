@@ -1,16 +1,11 @@
-# ep1-biblioteca-springboot
-# Commits en git
-# 1. Convención de Commits (Conventional Commits)
-Para mantener el historial ordenado y saber qué hizo cada uno, usamos estos prefijos:
+# Ep1-Biblioteca-Springboot
+## 1. Convención de Commits
 
-- **`feat:`**: Para agregar cosas nuevas, plantillas o documentación.
-  - *Ejemplos de lo que se subió al proyecto:*
-    - `feat: add environment variables template for microservices`
-    - `feat: add microservices port reference documentation`
-- **`fix:`**: Para corregir errores de código, scripts o configuraciones que fallaban.
-  - *Ejemplo*
-    - `fix: update db script header compatibility`
-- **`docs:`**: Para actualizar el README o guías del proyecto.
+Durante el desarrollo del proyecto no se utilizó una convención formal
+como Conventional Commits.
+
+Los mensajes de commit se utilizaron para describir de manera breve
+los cambios realizados en cada modificación del proyecto.
 
 ## 2. Ramas y Flujo de Trabajo
 
@@ -20,8 +15,6 @@ la rama `main`.
 Los cambios se prueban localmente antes de realizar el commit y
 posteriormente se integran directamente a `main`.
 
-No utilizamos una rama `develop` permanente ni mantenemos ramas
-`feature` o `hotfix` como parte del flujo habitual.
 
 # 3. Integración Continua y Revisión
 - **GitHub Actions:** Cada vez que hacemos `git push origin main`, se activa automáticamente el pipeline de CI para verificar que el proyecto siga compilando.
