@@ -12,9 +12,16 @@ Para mantener el historial ordenado y saber qué hizo cada uno, usamos estos pre
     - `fix: update db script header compatibility`
 - **`docs:`**: Para actualizar el README o guías del proyecto.
 
-# 2. Ramas y Flujo de Trabajo
-- **`main`**: Es la rama principal y la fuente de verdad. Todo cambio se sube aquí de forma continua.
-- **Ramas cortas:** Si hay que probar un arreglo de un microservicio sin romper lo de los demás, creamos una rama temporal
+## 2. Ramas y Flujo de Trabajo
+
+Utilizamos Trunk-Based Development, trabajando principalmente sobre
+la rama `main`.
+
+Los cambios se prueban localmente antes de realizar el commit y
+posteriormente se integran directamente a `main`.
+
+No utilizamos una rama `develop` permanente ni mantenemos ramas
+`feature` o `hotfix` como parte del flujo habitual.
 
 # 3. Integración Continua y Revisión
 - **GitHub Actions:** Cada vez que hacemos `git push origin main`, se activa automáticamente el pipeline de CI para verificar que el proyecto siga compilando.
