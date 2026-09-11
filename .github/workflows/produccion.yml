@@ -117,6 +117,7 @@ jobs:
           DB_URL: ${{ secrets.DB_URL }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          EUREKA_URL: http://localhost:8761/eureka
 
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -203,6 +204,7 @@ jobs:
             export DB_URL="$DB_URL"
             export DB_USERNAME="$DB_USERNAME"
             export DB_PASSWORD="$DB_PASSWORD"
+            export EUREKA_URL="$EUREKA_URL"
 
 
             # ==========================================
