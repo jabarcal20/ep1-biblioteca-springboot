@@ -14,8 +14,8 @@ spring:
   datasource:                  # ← dentro de spring, como corresponde
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/usuarios?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: user
-    password: Duoc.2025              # ⚠️ Solo válido en local. NUNCA subir credenciales reales a Git.
+    username: root
+    password: holaquehace              # ⚠️ Solo válido en local. NUNCA subir credenciales reales a Git.
 
   jpa:                         # ← dentro de spring, como corresponde
     database: mysql
