@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
 
 
-      # 2. Configurar Java 21
+      # 2. Configurar Java 21 en GitHub Actions
       - name: Configurar Java 21
         uses: actions/setup-java@v4
         with:
@@ -47,9 +47,10 @@ jobs:
           target: "/home/ubuntu/Deploy"
 
 
-      # 5. Ejecutar ms-usuarios en AWS
-      - name: Ejecutar ms-usuarios
+      # 5. Preparar y ejecutar ms-usuarios en AWS
+      - name: Preparar y ejecutar ms-usuarios
         uses: appleboy/ssh-action@v1.2.2
+
         env:
           DB_URL: ${{ secrets.DB_URL }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
@@ -64,15 +65,87 @@ jobs:
           envs: DB_URL,DB_USERNAME,DB_PASSWORD
 
           script: |
+
+            # ==========================================
+            # Ir a la carpeta de producción
+            # ==========================================
+
             cd /home/ubuntu/Deploy
+
+
+            # ==========================================
+            # Comprobar Java 21
+            # ==========================================
+
+            echo "Comprobando Java..."
+
+            if java -version 2>&1 | grep -q '"21'; then
+
+              echo "Java 21 ya está instalado."
+
+            else
+
+              echo "Java 21 no está instalado."
+              echo "Instalando Java 21..."
+
+              sudo apt update
+              sudo apt install -y openjdk-21-jdk
+
+              echo "Java 21 instalado."
+
+            fi
+
+
+            # Mostrar versión de Java
+            echo "Versión de Java instalada:"
+            java -version
+
+
+            # ==========================================
+            # Detener versión anterior
+            # ==========================================
 
             echo "Deteniendo versión anterior..."
 
-            pkill -f "cl-triskeledu-usuarios" || true
+            if [ -f ms-usuarios.pid ]; then
+
+              PID=$(cat ms-usuarios.pid)
+
+              if kill -0 "$PID" 2>/dev/null; then
+
+                echo "Deteniendo proceso anterior con PID $PID..."
+
+                kill "$PID"
+
+                sleep 5
+
+              else
+
+                echo "El proceso anterior ya no está ejecutándose."
+
+              fi
+
+              rm -f ms-usuarios.pid
+
+            else
+
+              echo "No existe un proceso anterior."
+
+            fi
+
+
+            # ==========================================
+            # Variables de base de datos
+            # ==========================================
 
             export DB_URL="$DB_URL"
             export DB_USERNAME="$DB_USERNAME"
             export DB_PASSWORD="$DB_PASSWORD"
+
+
+            # ==========================================
+            # Iniciar ms-usuarios
+            # ==========================================
 
             echo "Iniciando ms-usuarios..."
 
@@ -80,4 +153,29 @@ jobs:
               --spring.profiles.active=prod \
               > ms-usuarios.log 2>&1 &
 
-            echo "ms-usuarios iniciado"
+            echo $! > ms-usuarios.pid
+
+
+            # ==========================================
+            # Comprobar que la aplicación sigue ejecutándose
+            # ==========================================
+
+            echo "Esperando que Spring Boot inicie..."
+
+            sleep 10
+
+            if kill -0 "$(cat ms-usuarios.pid)" 2>/dev/null; then
+
+              echo "ms-usuarios está ejecutándose correctamente."
+
+            else
+
+              echo "ERROR: ms-usuarios no pudo iniciarse."
+
+              echo "Mostrando últimos logs:"
+
+              tail -n 50 ms-usuarios.log
+
+              exit 1
+
+            fi
